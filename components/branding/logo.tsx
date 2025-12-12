@@ -18,11 +18,17 @@ interface LogoProps {
 export function Logo({ className, width = 40, height = 40 }: LogoProps) {
   const { theme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const [imageError, setImageError] = useState<string | null>(null)
 
   // Avoid hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Reset error when theme changes (to retry loading the appropriate logo)
+  useEffect(() => {
+    setImageError(null)
+  }, [resolvedTheme, theme])
 
   if (!mounted) {
     // Show default during SSR
@@ -33,25 +39,29 @@ export function Logo({ className, width = 40, height = 40 }: LogoProps) {
   const hasCustomLogo = !!(tokenConfig.logoUrl || tokenConfig.logoDarkUrl)
   const isDark = resolvedTheme === "dark" || theme === "dark"
 
-  // If custom logos are configured via environment variables, use them
+  // If custom logos are configured via environment variables, use them (unless error occurred)
   if (hasCustomLogo) {
     const logoSrc = isDark ? tokenConfig.logoDarkUrl || tokenConfig.logoUrl : tokenConfig.logoUrl
 
-    if (logoSrc) {
+    if (logoSrc && imageError !== logoSrc) {
       return (
         <Image
-          src={logoSrc || "/placeholder.svg"}
+          src={logoSrc}
           alt={`${tokenConfig.projectName} Logo`}
           width={width}
           height={height}
           className={className}
           priority
+          onError={() => {
+            console.warn(`[Logo] Failed to load logo from ${logoSrc}, falling back to default`)
+            setImageError(logoSrc)
+          }}
         />
       )
     }
   }
 
-  // Default to the new logo.png
+  // Default to the new logo.png (fallback if custom logo fails or not configured)
   return (
     <Image
       src="/logo.png"
@@ -60,6 +70,9 @@ export function Logo({ className, width = 40, height = 40 }: LogoProps) {
       height={height}
       className={className}
       priority
+      onError={() => {
+        console.error("[Logo] Failed to load default logo.png")
+      }}
     />
   )
 }
