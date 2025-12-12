@@ -1,0 +1,245 @@
+// PSBT utility functions for debugging and inspection
+// Safe for browser - no sensitive data exposure
+
+import * as bitcoin from "bitcoinjs-lib"
+
+export interface DecodedPSBT {
+  version: number
+  inputs: DecodedInput[]
+  outputs: DecodedOutput[]
+  raw: {
+    base64: string
+    hex: string
+    size: number
+  }
+}
+
+export interface DecodedInput {
+  txid: string
+  vout: number
+  value?: number
+  address?: string
+  sequence?: number
+}
+
+export interface DecodedOutput {
+  type: string
+  address?: string
+  value: number
+  script?: string
+}
+
+/**
+ * Safely decode a PSBT for inspection without exposing sensitive data
+ * This is a basic decoder - for production use bitcoinjs-lib
+ */
+export function decodePsbtForDebug(psbtBase64: string): DecodedPSBT | null {
+  try {
+    console.log("[brc20kit] 🔍 Attempting to decode PSBT...")
+
+    const buffer = Buffer.from(psbtBase64, "base64")
+    const hex = buffer.toString("hex")
+
+    console.log("[brc20kit] 📊 PSBT size:", buffer.length, "bytes")
+    console.log("[brc20kit] 📝 PSBT hex (first 100 chars):", hex.substring(0, 100))
+
+    // Check if it's a valid PSBT magic bytes
+    const magicBytes = buffer.slice(0, 4).toString("hex")
+    console.log("[brc20kit] 🔐 Magic bytes:", magicBytes)
+
+    // Try to parse as JSON (our mock format)
+    try {
+      const mockData = JSON.parse(buffer.toString("utf8"))
+      console.log("[brc20kit] ⚠️  Detected MOCK PSBT format (not real Bitcoin PSBT)")
+      console.log("[brc20kit] 📦 Mock data structure:", {
+        version: mockData.version,
+        inputCount: mockData.inputs?.length || 0,
+        outputCount: mockData.outputs?.length || 0,
+      })
+
+      return {
+        version: mockData.version || 2,
+        inputs:
+          mockData.inputs?.map((inp: any) => ({
+            txid: inp.txid,
+            vout: inp.vout,
+            value: inp.value,
+            address: undefined,
+          })) || [],
+        outputs:
+          mockData.outputs?.map((out: any) => ({
+            type: out.type || "unknown",
+            address: out.address,
+            value: out.value,
+            script: out.data,
+          })) || [],
+        raw: {
+          base64: psbtBase64,
+          hex,
+          size: buffer.length,
+        },
+      }
+    } catch {
+      // Not JSON, might be real PSBT
+      console.log("[brc20kit] 📜 Attempting to parse as real Bitcoin PSBT...")
+
+      // Basic PSBT structure detection
+      if (magicBytes !== "70736274") {
+        // 'psbt' in hex
+        console.log("[brc20kit] ❌ Invalid PSBT magic bytes. Expected '70736274', got", magicBytes)
+        return null
+      }
+
+      console.log("[brc20kit] ✅ Valid PSBT magic bytes detected")
+
+      try {
+        const psbt = bitcoin.Psbt.fromBase64(psbtBase64)
+
+        // Extract inputs
+        const inputs: DecodedInput[] = psbt.data.inputs.map((input, i) => {
+          const txInput = psbt.txInputs[i]
+          return {
+            txid: Buffer.from(txInput.hash).reverse().toString("hex"), // Reverse for display
+            vout: txInput.index,
+            value: input.witnessUtxo ? Number(input.witnessUtxo.value) : undefined,
+            sequence: txInput.sequence,
+          }
+        })
+
+        // Extract outputs
+        const outputs: DecodedOutput[] = psbt.txOutputs.map((output) => {
+          // Check if it's OP_RETURN
+          const isOpReturn = output.script[0] === bitcoin.opcodes.OP_RETURN
+
+          return {
+            type: isOpReturn ? "OP_RETURN" : output.address ? "address" : "script",
+            address: output.address,
+            value: Number(output.value),
+            script: isOpReturn ? output.script.toString("hex") : undefined,
+          }
+        })
+
+        return {
+          version: psbt.version,
+          inputs,
+          outputs,
+          raw: {
+            base64: psbtBase64,
+            hex,
+            size: buffer.length,
+          },
+        }
+      } catch (decodeError) {
+        console.error("[brc20kit] ❌ Failed to decode PSBT with bitcoinjs-lib:", decodeError)
+        return null
+      }
+    }
+  } catch (error) {
+    console.error("[brc20kit] ❌ Failed to decode PSBT:", error)
+    return null
+  }
+}
+
+/**
+ * Validate PSBT structure for common issues
+ */
+export function validatePsbtStructure(psbtBase64: string): {
+  valid: boolean
+  errors: string[]
+  warnings: string[]
+} {
+  const errors: string[] = []
+  const warnings: string[] = []
+
+  const decoded = decodePsbtForDebug(psbtBase64)
+
+  if (!decoded) {
+    errors.push("Unable to decode PSBT")
+    return { valid: false, errors, warnings }
+  }
+
+  // Check for mock PSBT (invalid for wallets)
+  const buffer = Buffer.from(psbtBase64, "base64")
+  try {
+    JSON.parse(buffer.toString("utf8"))
+    errors.push("PSBT is in MOCK format - wallets require real Bitcoin PSBT format")
+    errors.push("This PSBT was generated by generateMockPSBT() and cannot be signed by real wallets")
+    errors.push("Use bitcoinjs-lib Psbt class to create valid PSBTs")
+  } catch {
+    // Good - not mock format
+  }
+
+  if (decoded.inputs.length === 0) {
+    errors.push("PSBT has no inputs")
+  }
+
+  if (decoded.outputs.length === 0) {
+    errors.push("PSBT has no outputs")
+  }
+
+  // Check for pending txids (not yet broadcast)
+  for (let i = 0; i < decoded.inputs.length; i++) {
+    if (decoded.inputs[i].txid.startsWith("pending_")) {
+      errors.push(`Input ${i} references pending transaction: ${decoded.inputs[i].txid}`)
+      errors.push("Chained PSBTs must be updated with real txids after previous transaction confirms")
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings,
+  }
+}
+
+/**
+ * Log PSBT details safely (no private keys, no sensitive data)
+ */
+export function logPsbtDebugInfo(psbtBase64: string, context = "") {
+  console.log(`[brc20kit] 🔍 PSBT Debug ${context ? `(${context})` : ""}`)
+
+  const decoded = decodePsbtForDebug(psbtBase64)
+
+  if (!decoded) {
+    console.log("[brc20kit] ❌ Unable to decode PSBT for debugging")
+    return
+  }
+
+  console.log("[brc20kit] 📊 PSBT Structure:")
+  console.log(`[brc20kit]   - Version: ${decoded.version}`)
+  console.log(`[brc20kit]   - Inputs: ${decoded.inputs.length}`)
+  console.log(`[brc20kit]   - Outputs: ${decoded.outputs.length}`)
+  console.log(`[brc20kit]   - Size: ${decoded.raw.size} bytes`)
+
+  console.log("[brc20kit] 📥 Inputs:")
+  decoded.inputs.forEach((input, i) => {
+    console.log(`[brc20kit]   ${i}: ${input.txid.substring(0, 16)}... vout:${input.vout} value:${input.value || "unknown"}`)
+  })
+
+  console.log("[brc20kit] 📤 Outputs:")
+  decoded.outputs.forEach((output, i) => {
+    console.log(
+      `[brc20kit]   ${i}: ${output.type} ${output.address ? output.address.substring(0, 16) + "..." : "no address"} value:${output.value}`,
+    )
+  })
+
+  const validation = validatePsbtStructure(psbtBase64)
+
+  if (!validation.valid) {
+    console.log("[brc20kit] ❌ PSBT Validation FAILED:")
+    validation.errors.forEach((error) => {
+      console.log(`[brc20kit]   ❌ ${error}`)
+    })
+  }
+
+  if (validation.warnings.length > 0) {
+    console.log("[brc20kit] ⚠️  PSBT Warnings:")
+    validation.warnings.forEach((warning) => {
+      console.log(`[brc20kit]   ⚠️  ${warning}`)
+    })
+  }
+
+  if (validation.valid) {
+    console.log("[brc20kit] ✅ PSBT structure looks valid")
+  }
+}
