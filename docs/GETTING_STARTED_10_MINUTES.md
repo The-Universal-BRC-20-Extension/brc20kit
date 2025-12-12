@@ -72,29 +72,29 @@ After deployment, you need to add environment variables:
    Click "Add New" for each of these:
 
    **Variable 1: Unisat API Token (REQUIRED)**
-   \`\`\`
+   ```
    Key: UNISAT_API_TOKEN
    Value: [paste your token from Step 1]
-   \`\`\`
+   ```
    > ⚠️ **Important:** This is required! Without it, minting won't work.
 
    **Variable 2: Network (REQUIRED)**
-   \`\`\`
+   ```
    Key: NEXT_PUBLIC_NETWORK
    Value: mainnet
-   \`\`\`
+   ```
 
    **Variable 3: Token Ticker (REQUIRED)**
-   \`\`\`
+   ```
    Key: NEXT_PUBLIC_DEFAULT_TICKER
    Value: ANY
-   \`\`\`
+   ```
 
    **Variable 4: Amount Per Mint (REQUIRED)**
-   \`\`\`
+   ```
    Key: NEXT_PUBLIC_DEFAULT_AMOUNT
    Value: 1
-   \`\`\`
+   ```
 
 3. **Apply to All Environments:**
    - Check: Production, Preview, Development

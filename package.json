@@ -1,7 +1,7 @@
 {
   "name": "brc20kit",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "license": "MIT",
   "scripts": {
     "build": "next build",
@@ -62,7 +62,7 @@
     "fs": "latest",
     "input-otp": "latest",
     "lucide-react": "^0.454.0",
-    "next": "16.0.0",
+    "next": "16.0.10",
     "next-themes": "latest",
     "path": "latest",
     "react": "19.2.0",

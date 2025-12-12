@@ -2,7 +2,7 @@
 
 ## Version 1.0.0 - Production Ready 🎉
 
-**Release Date:** November 2024
+**Release Date:** November 2025
 
 **Status:** ✅ Production Ready - All systems operational
 
@@ -108,18 +108,18 @@ See [docs/QUICK_START.md](docs/QUICK_START.md) for detailed instructions.
 ### Configuration Examples
 
 #### Basic Setup (No Fees)
-\`\`\`env
+```env
 NEXT_PUBLIC_NETWORK=mainnet
 NEXT_PUBLIC_PROJECT_NAME=MyMintPortal
-\`\`\`
+```
 
 #### With Platform Fees
-\`\`\`env
+```env
 NEXT_PUBLIC_NETWORK=mainnet
 NEXT_PUBLIC_COMMISSION_WALLET_ADDRESS=bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
 NEXT_PUBLIC_COMMISSION_AMOUNT_BTC=0.00000330
 NEXT_PUBLIC_DEFAULT_TICKER=SATS
-\`\`\`
+```
 
 See [docs/CONFIGURATION_GUIDE.md](docs/CONFIGURATION_GUIDE.md) for all options.
 

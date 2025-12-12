@@ -10,8 +10,8 @@
 
 **Version**: 1.0.0  
 **Status**: Production Ready  
-**Last Updated**: January 2025  
-**Website**: [brc20kit.com](https://brc20kit.com)
+**Last Updated**: December 2025  
+**Website**: [brc20kit.universaltx.space](https://brc20kit.universaltx.space)
 
 </div>
 
@@ -49,7 +49,7 @@ Deploy your own BRC-20 minting portal in just 10 minutes:
 
 Easily configure your mint portal via environment variables:
 
-\`\`\`bash
+```bash
 # Token Defaults (pre-fill mint form)
 NEXT_PUBLIC_DEFAULT_TICKER=MYTOKEN
 NEXT_PUBLIC_DEFAULT_AMOUNT=1000
@@ -63,7 +63,7 @@ NEXT_PUBLIC_COMMISSION_AMOUNT_BTC=0.00000330  # 330 sats
 # Branding (optional)
 NEXT_PUBLIC_LOGO_URL=/logo.svg
 NEXT_PUBLIC_PROJECT_NAME=YourProject
-\`\`\`
+```
 
 **Transaction Structure:**
 - **First Mint**: OP_RETURN + Commission (optional) + Change (3 outputs)
@@ -118,19 +118,19 @@ Integrated via [LaserEyes](https://github.com/omnisat/lasereyes) for seamless mu
 
 Get your free token from [https://open-api.unisat.io](https://open-api.unisat.io)
 
-\`\`\`env
+```env
 UNISAT_API_TOKEN=your_token_here
-\`\`\`
+```
 
 **Why needed:** All UTXO and balance queries use Unisat API. Without this, minting won't work.
 
 **Token Settings (Required):**
 
-\`\`\`env
+```env
 NEXT_PUBLIC_NETWORK=mainnet
 NEXT_PUBLIC_DEFAULT_TICKER=ANY
 NEXT_PUBLIC_DEFAULT_AMOUNT=1
-\`\`\`
+```
 
 **Note:** Users cannot change ticker or amount in the UI. These are hardcoded from environment variables.
 
@@ -138,19 +138,19 @@ NEXT_PUBLIC_DEFAULT_AMOUNT=1
 
 Collect a small fee on the first mint of each chain:
 
-\`\`\`env
+```env
 NEXT_PUBLIC_COMMISSION_WALLET_ADDRESS=bc1q...
 NEXT_PUBLIC_COMMISSION_AMOUNT_BTC=0.00000330  # 330 sats recommended
-\`\`\`
+```
 
 **Note**: Commission is only charged once per minting session (on the first transaction). Subsequent mints in the chain are commission-free for users.
 
 ### Optional: Branding
 
-\`\`\`env
+```env
 NEXT_PUBLIC_PROJECT_NAME=YourProjectName
 NEXT_PUBLIC_LOGO_URL=/logo.svg
-\`\`\`
+```
 
 **Complete Reference**: See [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for all configuration options.
 
@@ -182,18 +182,6 @@ NEXT_PUBLIC_LOGO_URL=/logo.svg
 
 ---
 
-
----
-
-
----
-
-
----
-
-
----
-
 ## 🤝 Contributing & Community
 
 We welcome contributions! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
@@ -211,7 +199,7 @@ We welcome contributions! Whether you're fixing bugs, adding features, or improv
 - **GitHub:** [github.com/The-Universal-BRC-20-Extension/brc20kit](https://github.com/The-Universal-BRC-20-Extension/brc20kit)
 - **Issues:** [Report a Bug](https://github.com/The-Universal-BRC-20-Extension/brc20kit/issues)
 - **Discussions:** [Join the Discussion](https://github.com/The-Universal-BRC-20-Extension/brc20kit/discussions)
-- **Website:** [brc20kit.com](https://brc20kit.com)
+- **Website:** [brc20kit.universaltx.space](https://brc20kit.universaltx.space)
 
 ### How to Contribute
 
@@ -249,7 +237,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 **Do not** open public GitHub issues for security vulnerabilities.
 
-Instead, please email: **arkano1dev@proton.me**
+Instead, please email: **galois@blockcryptology.locker**
 
 We will respond promptly and work with you to address the issue.
 
@@ -279,12 +267,6 @@ Just include the original license and copyright notice.
 - **❓ FAQ**: [Common Questions](docs/FAQ.md)
 - **🐛 Report Bug**: [GitHub Issues](https://github.com/The-Universal-BRC-20-Extension/brc20kit/issues)
 - **💬 Discussions**: [GitHub Discussions](https://github.com/The-Universal-BRC-20-Extension/brc20kit/discussions)
-
-### Commercial Support
-
-For white-label deployments, custom integrations, or priority support:
-- **Email**: arkano1dev@proton.me
-- **Website**: [brc20kit.com](https://brc20kit.com)
 
 ---
 
@@ -316,7 +298,3 @@ Special thanks to the Bitcoin and Ordinals communities for their pioneering work
 [GitHub](https://github.com/The-Universal-BRC-20-Extension/brc20kit) • [Issues](https://github.com/The-Universal-BRC-20-Extension/brc20kit/issues) • [Discussions](https://github.com/The-Universal-BRC-20-Extension/brc20kit/discussions)
 
 </div>
-
----
-
-*Built with ⚡ by Arkano1dev*

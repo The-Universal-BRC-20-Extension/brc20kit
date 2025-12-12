@@ -2,7 +2,7 @@
 ## Complete Implementation Guide for Public Release
 
 **Target**: Ship-ready SDK in 2-4 hours with AI agent assistance  
-**Date**: January 2025
+**Date**: November 2025
 
 ---
 
@@ -29,7 +29,7 @@
 #### Task 1.1: Create `.env.example` (5 min)
 
 **Developer Prompt for AI Agent**:
-\`\`\`
+```
 Create a .env.example file at the root of the project with all required environment variables.
 
 Required variables:
@@ -45,10 +45,10 @@ Optional variables:
 - NEXT_PUBLIC_SIMPLICITY_API_URL (default: https://sdk.txspam.lol)
 
 Add clear comments explaining each variable. Follow the format from existing .env files in Next.js projects.
-\`\`\`
+```
 
 **Expected Output**:
-\`\`\`bash
+```bash
 # ============================================
 # Universal BRC-20 Mint Portal Configuration
 # ============================================
@@ -62,15 +62,17 @@ NEXT_PUBLIC_DEFAULT_FEE_RATE=10
 COMMISSION_WALLET_ADDRESS=bc1your_bitcoin_address_here
 COMMISSION_AMOUNT_BTC=0.0001  # 10,000 sats per first mint
 
+UNISAT_API_TOKEN=your_bearer_token_here
+
+# Unisat API Base URL (Optional, has default)
+# Default: https://open-api.unisat.io
+UNISAT_API_URL=https://open-api.unisat.io
+
 # API Configuration (REQUIRED)
-SIMPLICITY_API_SECRET=your-api-secret-here
 
 # Network Configuration (OPTIONAL)
 NEXT_PUBLIC_NETWORK=mainnet  # Options: mainnet | testnet
-
-# API URL (OPTIONAL - uses default if not set)
-NEXT_PUBLIC_SIMPLICITY_API_URL=https://sdk.txspam.lol
-\`\`\`
+```
 
 **Verification**:
 - [ ] File created at root
@@ -83,7 +85,7 @@ NEXT_PUBLIC_SIMPLICITY_API_URL=https://sdk.txspam.lol
 #### Task 1.2: Create `config/token.config.ts` (10 min)
 
 **Developer Prompt for AI Agent**:
-\`\`\`
+```
 Create a new file config/token.config.ts that centralizes token configuration from environment variables.
 
 Requirements:
@@ -104,10 +106,10 @@ Requirements:
 5. Use proper TypeScript types
 
 Follow the pattern from lib/config.ts but extend it for token-specific config.
-\`\`\`
+```
 
 **Expected Output**:
-\`\`\`typescript
+```typescript
 /**
  * Token Configuration
  * 
@@ -159,7 +161,7 @@ if (!tokenConfig.defaultTicker && process.env.NODE_ENV === 'production') {
 if (!tokenConfig.feesAddress && process.env.NODE_ENV === 'production') {
   console.warn('[brc20kit] ⚠️ COMMISSION_WALLET_ADDRESS not set - platform fees disabled')
 }
-\`\`\`
+```
 
 **Verification**:
 - [ ] File created in `config/` directory
@@ -174,7 +176,7 @@ if (!tokenConfig.feesAddress && process.env.NODE_ENV === 'production') {
 #### Task 1.3: Update `app/mint/page.tsx` (15 min)
 
 **Developer Prompt for AI Agent**:
-\`\`\`
+```
 Update app/mint/page.tsx to use tokenConfig defaults instead of empty strings.
 
 Current state (lines 37-40):
@@ -191,10 +193,10 @@ Requirements:
 5. Don't break existing functionality
 
 Follow the .cursorrules guidelines for React and TypeScript.
-\`\`\`
+```
 
 **Expected Changes**:
-\`\`\`typescript
+```typescript
 // Add import at top
 import { tokenConfig } from '@/config/token.config'
 
@@ -203,7 +205,7 @@ const [ticker, setTicker] = useState(tokenConfig.defaultTicker)
 const [amount, setAmount] = useState(tokenConfig.defaultAmount)
 const [numMints, setNumMints] = useState(tokenConfig.defaultNumMints)
 const [selectedFeeRate, setSelectedFeeRate] = useState<number>(tokenConfig.defaultFeeRate)
-\`\`\`
+```
 
 **Verification**:
 - [ ] Import added correctly
@@ -232,7 +234,7 @@ The platform fees system is already fully functional using:
 #### Task 2.1: Create `docs/GETTING_STARTED.md` (15 min)
 
 **Developer Prompt for AI Agent**:
-\`\`\`
+```
 Create docs/GETTING_STARTED.md - a 5-minute quick start guide for developers who want to deploy this SDK.
 
 Structure:
@@ -248,7 +250,7 @@ Structure:
 
 Keep it concise, visual, and focused on getting started quickly. Use clear headings and code blocks.
 Reference the Universal Protocol docs and Blacknode docs for advanced topics.
-\`\`\`
+```
 
 **Expected Content**:
 - Clear step-by-step instructions
@@ -267,7 +269,7 @@ Reference the Universal Protocol docs and Blacknode docs for advanced topics.
 #### Task 2.2: Create `docs/QUICK_START.md` (10 min)
 
 **Developer Prompt for AI Agent**:
-\`\`\`
+```
 Create docs/QUICK_START.md - a minimal setup guide for the absolute fastest path to deployment.
 
 Focus on:
@@ -277,7 +279,7 @@ Focus on:
 4. Link to GETTING_STARTED.md for details
 
 Keep it under 2 pages. Make it scannable with bullet points.
-\`\`\`
+```
 
 **Verification**:
 - [ ] File created
@@ -290,7 +292,7 @@ Keep it under 2 pages. Make it scannable with bullet points.
 #### Task 2.3: Update `README.md` (10 min)
 
 **Developer Prompt for AI Agent**:
-\`\`\`
+```
 Update README.md to add a prominent "Quick Start" section at the top, right after the "Key Features" section.
 
 Add:
@@ -300,7 +302,7 @@ Add:
 4. Add note about AI agent workflow (optional)
 
 Keep existing content but reorganize for better flow.
-\`\`\`
+```
 
 **Verification**:
 - [ ] Quick Start section added
@@ -350,7 +352,7 @@ Keep existing content but reorganize for better flow.
 
 **When working with AI agent, provide this context**:
 
-\`\`\`
+```
 I'm implementing the public release roadmap for this BRC-20 mint portal SDK.
 
 Current status:
@@ -364,7 +366,7 @@ Please help me implement the missing pieces following the roadmap in docs/PUBLIC
 
 Read .cursorrules for coding guidelines.
 Read docs/ARCHITECTURE_VERIFICATION_REPORT.md for current implementation details.
-\`\`\`
+```
 
 ### For the AI Agent
 
@@ -459,8 +461,7 @@ Read docs/ARCHITECTURE_VERIFICATION_REPORT.md for current implementation details
 - **Architecture**: `docs/ARCHITECTURE_VERIFICATION_REPORT.md`
 - **Coding Rules**: `.cursorrules`
 - **Project Status**: `docs/PROJECT_STATUS.md`
-- **Universal Protocol**: [Link to Universal docs]
-- **Blacknode Docs**: https://www.blacknode.co/docs
+- **Universal Protocol**: [Universal Docs](https://www.universaltx.space)
 
 ---
 
@@ -477,5 +478,5 @@ Read docs/ARCHITECTURE_VERIFICATION_REPORT.md for current implementation details
 
 ---
 
-**Last Updated**: January 2025  
+**Last Updated**: December 2025  
 **Version**: 1.0

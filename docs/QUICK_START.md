@@ -15,12 +15,12 @@ Click the button below to deploy instantly:
 
 Or manually:
 
-\`\`\`bash
+```bash
 # Clone and deploy
 git clone https://github.com/The-Universal-BRC-20-Extension/brc20kit.git
 cd brc20kit
 vercel
-\`\`\`
+```
 
 ## Step 2: Configure Environment Variables (2 min)
 
@@ -28,23 +28,23 @@ In your Vercel dashboard (Settings > Environment Variables):
 
 ### Required
 
-\`\`\`env
+```env
 NEXT_PUBLIC_NETWORK=mainnet
-\`\`\`
+```
 
 ### Optional - Platform Fees
 
-\`\`\`env
+```env
 NEXT_PUBLIC_COMMISSION_WALLET_ADDRESS=your_btc_address_here
 NEXT_PUBLIC_COMMISSION_AMOUNT_BTC=0.00000330
-\`\`\`
+```
 
 ### Optional - Branding
 
-\`\`\`env
+```env
 NEXT_PUBLIC_PROJECT_NAME=MyMintPortal
 NEXT_PUBLIC_DEFAULT_TICKER=SATS
-\`\`\`
+```
 
 ## Step 3: Deploy
 

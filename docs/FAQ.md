@@ -43,10 +43,10 @@ Users cannot modify these values in the UI. They are set when you deploy.
 ### How do I customize the token?
 
 Set these environment variables in Vercel:
-\`\`\`env
+```env
 NEXT_PUBLIC_DEFAULT_TICKER=YOURTOKEN
 NEXT_PUBLIC_DEFAULT_AMOUNT=1000
-\`\`\`
+```
 
 Then redeploy your project.
 
@@ -239,9 +239,9 @@ Fee calculation uses accurate transaction size computation:
 ### Can I use this on testnet?
 
 **Yes.** Set:
-\`\`\`env
+```env
 NEXT_PUBLIC_NETWORK=testnet
-\`\`\`
+```
 
 Then use a testnet wallet and testnet Bitcoin.
 

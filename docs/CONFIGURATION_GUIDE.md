@@ -36,7 +36,7 @@ Pre-fill the mint form with default values. Users can still change these.
 Token ticker that appears by default.
 
 ```env
-NEXT_PUBLIC_DEFAULT_TICKER=SATS
+NEXT_PUBLIC_DEFAULT_TICKER=KEK
 ```
 
 **Note:** 4-character tickers are reserved for standard BRC-20 tokens.
@@ -46,7 +46,7 @@ NEXT_PUBLIC_DEFAULT_TICKER=SATS
 Default mint amount per transaction.
 
 ```env
-NEXT_PUBLIC_DEFAULT_AMOUNT=1000
+NEXT_PUBLIC_DEFAULT_AMOUNT=10000
 ```
 
 ### `NEXT_PUBLIC_DEFAULT_FEE_RATE`
@@ -54,7 +54,7 @@ NEXT_PUBLIC_DEFAULT_AMOUNT=1000
 Default fee rate in sat/vB (will be overridden by live mempool data).
 
 ```env
-NEXT_PUBLIC_DEFAULT_FEE_RATE=10
+NEXT_PUBLIC_DEFAULT_FEE_RATE=1
 ```
 
 ### `NEXT_PUBLIC_DEFAULT_NUM_MINTS`
@@ -146,34 +146,6 @@ URL to your logo for dark mode (optional - uses `LOGO_URL` if not set).
 NEXT_PUBLIC_LOGO_DARK_URL=https://yoursite.com/logo-dark.svg
 ```
 
-## API Configuration
-
-### `NEXT_PUBLIC_SIMPLICITY_API_URL`
-
-Simplicity API endpoint for UTXO fetching.
-
-```env
-NEXT_PUBLIC_SIMPLICITY_API_URL=https://api.simplicity.network
-```
-
-Default: `https://api.simplicity.network`
-
-### `SIMPLICITY_API_SECRET`
-
-API secret for Simplicity (server-side only).
-
-```env
-SIMPLICITY_API_SECRET=your_secret_here
-```
-
-### `BITCOIN_RPC_URL` (Optional)
-
-Bitcoin RPC URL for advanced features.
-
-```env
-BITCOIN_RPC_URL=https://your-rpc-node.com
-```
-
 ## Configuration Examples
 
 ### Example 1: Basic Setup (No Fees)
@@ -221,8 +193,12 @@ NEXT_PUBLIC_DEFAULT_FEE_RATE=15
 NEXT_PUBLIC_DEFAULT_NUM_MINTS=10
 
 # API
-NEXT_PUBLIC_SIMPLICITY_API_URL=https://api.simplicity.network
-SIMPLICITY_API_SECRET=your_secret_here
+UNISAT_API_TOKEN=your_bearer_token_here
+
+# Unisat API Base URL (Optional, has default)
+# Default: https://open-api.unisat.io
+UNISAT_API_URL=https://open-api.unisat.io
+
 ```
 
 ## Validation & Debugging

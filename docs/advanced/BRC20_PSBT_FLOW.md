@@ -20,7 +20,7 @@ This document explains the complete flow for creating, signing, and broadcasting
 
 The BRC-20 minting system uses a modern PSBT-based architecture that separates transaction construction from signing:
 
-\`\`\`
+```
 ┌─────────────────┐
 │   User Action   │
 │  (Mint Button)  │
@@ -28,7 +28,7 @@ The BRC-20 minting system uses a modern PSBT-based architecture that separates t
          │
          ▼
 ┌─────────────────┐
-│  Fetch UTXOs    │ ◄─── Simplicity SDK API
+│  Fetch UTXOs    │ ◄─── Unisat API
 │  from Address   │      (via /api/utxos)
 └────────┬────────┘
          │
@@ -62,7 +62,7 @@ The BRC-20 minting system uses a modern PSBT-based architecture that separates t
 │   Success!      │
 │   TXID: xxxxx   │
 └─────────────────┘
-\`\`\`
+```
 
 ---
 
@@ -79,14 +79,14 @@ The core PSBT builder using bitcoinjs-lib to create valid Bitcoin transactions.
 - Validate UTXO data and addresses
 
 **Key Methods:**
-\`\`\`typescript
+```typescript
 buildMintPSBT(
   utxos: UTXO[],
   recipientAddress: string,
   brc20Data: BRC20Operation,
   feeRate: number
 ): Promise<string>
-\`\`\`
+```
 
 ### 2. **ChainedMintBuilder** (`lib/brc20-mint.ts`)
 
@@ -98,10 +98,10 @@ Handles the orchestration of BRC-20 minting operations.
 - Coordinate between UTXO fetching and PSBT building
 
 **Key Methods:**
-\`\`\`typescript
+```typescript
 buildChain(): Promise<ChainedMintResult>
 buildFirstMint(): Promise<string>
-\`\`\`
+```
 
 ### 3. **UTXOProvider** (`lib/utxo-provider.ts`)
 
@@ -113,9 +113,9 @@ Fetches and manages UTXOs from the Simplicity SDK API.
 - Convert API format to internal TransactionInput format
 
 **Key Methods:**
-\`\`\`typescript
+```typescript
 getUTXOs(address: string): Promise<TransactionInput[]>
-\`\`\`
+```
 
 ### 4. **WalletAdapter** (`lib/wallets.ts`)
 
@@ -129,10 +129,10 @@ Universal wallet integration supporting multiple Bitcoin wallets.
 - Magic Eden (planned)
 
 **Key Methods:**
-\`\`\`typescript
+```typescript
 signPsbt(psbtHex: string, psbtBase64: string): Promise<SignPsbtResult>
 broadcastTx(txHex: string): Promise<BroadcastResult>
-\`\`\`
+```
 
 ### 5. **API Routes**
 
@@ -140,14 +140,14 @@ broadcastTx(txHex: string): Promise<BroadcastResult>
 Proxy route to fetch UTXOs from Simplicity SDK API.
 
 **Request:**
-\`\`\`json
+```json
 {
   "address": "bc1q..."
 }
-\`\`\`
+```
 
 **Response:**
-\`\`\`json
+```json
 {
   "success": true,
   "data": [
@@ -163,7 +163,7 @@ Proxy route to fetch UTXOs from Simplicity SDK API.
     }
   ]
 }
-\`\`\`
+```
 
 ---
 
@@ -175,7 +175,7 @@ Proxy route to fetch UTXOs from Simplicity SDK API.
 
 User clicks "Mint" button in the UI (`app/mint/page.tsx`).
 
-\`\`\`typescript
+```typescript
 const handleMint = async () => {
   // Fetch user's UTXOs
   const utxos = await wallet.getUTXOs()
@@ -186,13 +186,13 @@ const handleMint = async () => {
   // Sign and broadcast first PSBT
   const txid = await signAndBroadcast(chain.psbts[0])
 }
-\`\`\`
+```
 
 #### 2. **Fetch UTXOs**
 
 `UTXOProvider.getUTXOs()` fetches available UTXOs:
 
-\`\`\`typescript
+```typescript
 // Call backend API
 const response = await fetch("/api/utxos", {
   method: "POST",
@@ -206,7 +206,7 @@ const utxos = response.data.map(utxo => ({
   value: utxo.satoshi,
   scriptPubKey: utxo.scriptPk // Critical for PSBT!
 }))
-\`\`\`
+```
 
 **Important:** The `scriptPk` field from the API is preserved as `scriptPubKey` because bitcoinjs-lib requires it to construct witnessUtxo data.
 
@@ -214,7 +214,7 @@ const utxos = response.data.map(utxo => ({
 
 `BRC20PSBTBuilder.buildMintPSBT()` creates the PSBT:
 
-\`\`\`typescript
+```typescript
 const psbt = new bitcoin.Psbt({ network: bitcoin.networks.bitcoin })
 
 // Add inputs with witnessUtxo
@@ -255,13 +255,13 @@ psbt.addOutput({
 })
 
 return psbt.toBase64()
-\`\`\`
+```
 
 #### 4. **Sign PSBT with Wallet**
 
 `XverseAdapter.signPsbt()` sends PSBT to wallet for signing:
 
-\`\`\`typescript
+```typescript
 const { request } = await import("sats-connect")
 
 const response = await request("signPsbt", {
@@ -273,13 +273,13 @@ const response = await request("signPsbt", {
 })
 
 const signedPsbtBase64 = response.result.psbt
-\`\`\`
+```
 
 #### 5. **Finalize PSBT**
 
 After wallet signs, finalize to extract transaction:
 
-\`\`\`typescript
+```typescript
 const psbt = bitcoin.Psbt.fromBase64(signedPsbtBase64)
 
 // Finalize all inputs (add witness data to transaction)
@@ -288,7 +288,7 @@ psbt.finalizeAllInputs()
 // Extract complete transaction
 const tx = psbt.extractTransaction()
 const txHex = tx.toHex()
-\`\`\`
+```
 
 **Critical:** This step converts the PSBT into a complete Bitcoin transaction ready for broadcast.
 
@@ -296,7 +296,7 @@ const txHex = tx.toHex()
 
 Send transaction hex to Bitcoin network:
 
-\`\`\`typescript
+```typescript
 const response = await fetch("https://mempool.space/api/tx", {
   method: "POST",
   body: txHex
@@ -304,7 +304,7 @@ const response = await fetch("https://mempool.space/api/tx", {
 
 const txid = await response.text()
 // txid: "276bfea81630a98487bc800bbe2834d9a2b2bce5bace02012c6767c8f8c044d1"
-\`\`\`
+```
 
 ---
 
@@ -322,12 +322,12 @@ A PSBT is a partially complete Bitcoin transaction that can be passed between di
 
 For Taproot (P2TR) transactions, wallets need `witnessUtxo` data:
 
-\`\`\`typescript
+```typescript
 witnessUtxo: {
   script: Uint8Array,  // scriptPubKey of the UTXO being spent
   value: bigint        // Amount in satoshis
 }
-\`\`\`
+```
 
 **Common Mistakes:**
 - ❌ Using `Buffer` instead of `Uint8Array` for script
@@ -338,7 +338,7 @@ witnessUtxo: {
 
 BRC-20 operations use OP_RETURN outputs:
 
-\`\`\`typescript
+```typescript
 // BRC-20 mint operation
 {
   "p": "brc-20",      // Protocol
@@ -349,16 +349,16 @@ BRC-20 operations use OP_RETURN outputs:
 
 // Compiled into Bitcoin script
 OP_RETURN <json_bytes>
-\`\`\`
+```
 
 ### Fee Calculation
 
 Simple fee estimation:
 
-\`\`\`typescript
+```typescript
 const estimatedSize = 10 + (inputCount * 58) + (outputCount * 43) + opReturnSize
 const fee = estimatedSize * feeRate // feeRate in sats/vbyte
-\`\`\`
+```
 
 **Typical sizes:**
 - P2TR input: ~58 vbytes
@@ -377,15 +377,15 @@ const fee = estimatedSize * feeRate // feeRate in sats/vbyte
 - Returns signed PSBT (needs finalization)
 
 **Connection:**
-\`\`\`typescript
+```typescript
 const response = await request("getAccounts", {
   purposes: ["payment", "ordinals"],
   message: "Connect to BRC-20 Kit"
 })
-\`\`\`
+```
 
 **Signing:**
-\`\`\`typescript
+```typescript
 const response = await request("signPsbt", {
   psbt: psbtBase64,
   signInputs: {
@@ -393,23 +393,23 @@ const response = await request("signPsbt", {
   },
   broadcast: false
 })
-\`\`\`
+```
 
 ### Unisat Wallet
 
 **Direct window API:**
-\`\`\`typescript
+```typescript
 const signedPsbtHex = await window.unisat.signPsbt(psbtHex)
 const txid = await window.unisat.pushTx(signedTxHex)
-\`\`\`
+```
 
 ### OKX Wallet
 
 **Similar to Unisat:**
-\`\`\`typescript
+```typescript
 const signedPsbtHex = await window.okxwallet.bitcoin.signPsbt(psbtHex)
 const txid = await window.okxwallet.bitcoin.pushTx(txHex)
-\`\`\`
+```
 
 ---
 
@@ -422,7 +422,7 @@ const txid = await window.okxwallet.bitcoin.pushTx(txHex)
 **Cause:** API response doesn't include `scriptPk` field.
 
 **Solution:**
-\`\`\`typescript
+```typescript
 // Ensure API response includes scriptPk
 {
   "txid": "...",
@@ -430,43 +430,43 @@ const txid = await window.okxwallet.bitcoin.pushTx(txHex)
   "satoshi": 22300,
   "scriptPk": "0014b4b47f0f..." // Required!
 }
-\`\`\`
+```
 
 #### 2. **"Invalid PSBT" from wallet**
 
 **Cause:** Incorrect witnessUtxo format.
 
 **Solution:**
-\`\`\`typescript
+```typescript
 // Use correct types
 witnessUtxo: {
   script: Uint8Array.from(Buffer.from(scriptPk, "hex")),
   value: BigInt(satoshi)
 }
-\`\`\`
+```
 
 #### 3. **"Transaction missing input data" on broadcast**
 
 **Cause:** PSBT not finalized after signing.
 
 **Solution:**
-\`\`\`typescript
+```typescript
 const psbt = bitcoin.Psbt.fromBase64(signedPsbt)
 psbt.finalizeAllInputs()  // Critical!
 const tx = psbt.extractTransaction()
-\`\`\`
+```
 
 #### 4. **"Insufficient funds"**
 
 **Cause:** Not enough sats for fee + change (min 546 sats).
 
 **Solution:**
-\`\`\`typescript
+```typescript
 const changeAmount = totalInput - fee
 if (changeAmount < 546) {
   throw new Error("Insufficient funds for fee")
 }
-\`\`\`
+```
 
 ---
 
@@ -476,52 +476,52 @@ if (changeAmount < 546) {
 
 #### 1. **PSBT Decoder**
 
-\`\`\`typescript
+```typescript
 import { BRC20PSBTBuilder } from "@/lib/brc20-psbt-builder"
 
 const info = BRC20PSBTBuilder.decodePSBT(psbtBase64)
 console.log("PSBT Info:", info)
 // Output: { valid: true, inputCount: 1, outputs: [...] }
-\`\`\`
+```
 
 #### 2. **UTXO Inspector**
 
-\`\`\`typescript
+```typescript
 console.log("UTXOs:", JSON.stringify(utxos, null, 2))
 // Check for scriptPk field presence
-\`\`\`
+```
 
 #### 3. **Transaction Hex Validator**
 
 Use mempool.space to decode transaction:
-\`\`\`
+```
 https://mempool.space/tx/push
-\`\`\`
+```
 
 ### Network Configuration
 
 Ensure correct network settings:
 
-\`\`\`typescript
+```typescript
 // mainnet
 const network = bitcoin.networks.bitcoin
 
 // testnet
 const network = bitcoin.networks.testnet
-\`\`\`
+```
 
 ### CORS Issues with Simplicity SDK
 
 Add Origin header when calling SDK:
 
-\`\`\`typescript
+```typescript
 const response = await fetch(apiUrl, {
   headers: {
     "Origin": "https://v0.app",
     "X-Custom-Secret": apiSecret
   }
 })
-\`\`\`
+```
 
 ---
 

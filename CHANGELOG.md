@@ -149,7 +149,7 @@ See the [GitHub Contributors](https://github.com/yourorg/yourrepo/graphs/contrib
 For questions about changes:
 - **Documentation**: Check the `/docs` folder
 - **GitHub Issues**: Report bugs or request features
-- **Email**: arkano1dev@proton.me
+- **Email**: galois@blockcryptology.locker
 
 ---
 
